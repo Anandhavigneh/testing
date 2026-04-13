@@ -1,0 +1,2 @@
+[INFO] Giottus request POST https://api.giottus.com/api/v1/futures/set/favcoinpair payload={'ctid': 'INVALID_CTID_99999', 'coinpair': 'BTC/USDT', 'value': '0'}
+[ERROR] Giottus request failed: HTTPSConnectionPool(host='api.giottus.com', port=443): Max retries exceeded with url: /api/v1/futures/set/favcoinpair (Caused by ProxyError('Unable to connect to proxy', NewConnectionError("HTTPSConnection(host='127.0.0.1', port=9): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it")))
