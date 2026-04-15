@@ -201,3 +201,163 @@ class FuturesClient:
                 "Data": [],
             }
         return None
+
+    @staticmethod
+    def _validate_quantity(quantity: Any) -> dict[str, Any] | None:
+        if quantity is None:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Quantity is required.",
+                "Data": [],
+            }
+
+        quantity_value = str(quantity).strip()
+        if not quantity_value:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Quantity cannot be empty.",
+                "Data": [],
+            }
+
+        try:
+            quantity_float = float(quantity_value)
+        except ValueError:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Quantity must be a valid number.",
+                "Data": [],
+            }
+
+        if quantity_float <= 0:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Quantity must be greater than zero.",
+                "Data": [],
+            }
+
+        if "." in quantity_value and len(quantity_value.split(".")[1]) > 8:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Quantity exceeds 8 decimal places limit.",
+                "Data": [],
+            }
+        return None
+
+    @staticmethod
+    def _validate_price(price: Any) -> dict[str, Any] | None:
+        if price is None:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Price is required.",
+                "Data": [],
+            }
+
+        price_value = str(price).strip()
+        if not price_value:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Price cannot be empty.",
+                "Data": [],
+            }
+
+        try:
+            price_float = float(price_value)
+        except ValueError:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Price must be a valid number.",
+                "Data": [],
+            }
+
+        if price_float <= 0:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Price must be strictly positive.",
+                "Data": [],
+            }
+
+        if "." in price_value and len(price_value.split(".")[1]) > 8:
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "Price exceeds 8 decimal places limit.",
+                "Data": [],
+            }
+        return None
+
+    def create_futures_order(self, ctid: Any, symbol: Any, order_side: Any, quantity: Any) -> dict[str, Any]:
+        """Place a Futures market order (basic MARKET order payload).
+
+        This mirrors the Spot client's basic validation and POST behaviour but
+        targets the futures service base URL. The endpoint path may need
+        adjustment depending on the real futures API path.
+        """
+
+        # basic validations (reuse existing validators where applicable)
+        ctid_error = self._validate_ctid(ctid)
+        if ctid_error:
+            return ctid_error
+
+        coinpair_error = self._validate_coinpair(symbol)
+        if coinpair_error:
+            return coinpair_error
+
+        quantity_error = self._validate_quantity(quantity)
+        if quantity_error:
+            return quantity_error
+
+        payload = {
+            "ctid": str(ctid).strip(),
+            "symbol": str(symbol).strip(),
+            "order_type": "MARKET",
+            "order_side": str(order_side).upper().strip(),
+            "quantity": str(quantity).strip(),
+        }
+
+        return self._request("POST", "/order", json=payload)
+
+    def create_futures_limit_order(
+        self,
+        ctid: Any,
+        symbol: Any,
+        order_side: Any,
+        quantity: Any,
+        price: Any,
+    ) -> dict[str, Any]:
+        """Place a Futures LIMIT order."""
+
+        ctid_error = self._validate_ctid(ctid)
+        if ctid_error:
+            return ctid_error
+
+        coinpair_error = self._validate_coinpair(symbol)
+        if coinpair_error:
+            return coinpair_error
+
+        quantity_error = self._validate_quantity(quantity)
+        if quantity_error:
+            return quantity_error
+
+        price_error = self._validate_price(price)
+        if price_error:
+            return price_error
+
+        payload = {
+            "ctid": str(ctid).strip(),
+            "symbol": str(symbol).strip(),
+            "order_type": "LIMIT",
+            "order_side": str(order_side).upper().strip(),
+            "quantity": str(quantity).strip(),
+            "price": str(price).strip(),
+        }
+
+        return self._request("POST", "/order", json=payload)
