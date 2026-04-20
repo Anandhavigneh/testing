@@ -20,16 +20,16 @@ TOTAL TEST CASES: 17
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ 1. test_market_buy_by_valid_quantity()                                      │
 │    → Place a Market Buy order specifying a valid base currency quantity     │
-│                                                                              │
+│                                                                             │
 │ 2. test_market_sell_by_valid_quantity()                                     │
 │    → Place a Market Sell order specifying a valid base currency quantity    │
-│                                                                              │
+│                                                                             │
 │ 3. test_market_sell_100_percent_balance()                                   │
 │    → Place a Market Sell order specifying the total exact BTC balance       │
-│                                                                              │
+│                                                                             │
 │ 4. test_market_buy_using_affordability()                                    │
 │    → Calculate max affordable BTC based on INR balance and place Buy        │
-│                                                                              │
+│                                                                             │
 │ 5. test_fee_deduction_verification()                                        │
 │    → Execute Market Trade and query Trade History to validate 0.70% fee     │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -75,7 +75,7 @@ TOTAL TEST CASES: 17
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ================================================================================
-                            EXECUTION NOTES
+                                EXECUTION NOTES
 ================================================================================
 
 • All tests use the `spot_client` fixture
@@ -111,7 +111,9 @@ def test_market_buy_by_valid_quantity(spot_client):
         order_side="BUY",
         quantity="0.005"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", (
+        f"Real BUY trade FAILED — API response: {result}"
+    )
 
 def test_market_sell_by_valid_quantity(spot_client):
     """2. Place a Market Sell order specifying a valid base currency quantity."""
@@ -121,7 +123,9 @@ def test_market_sell_by_valid_quantity(spot_client):
         order_side="SELL",
         quantity="0.005"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", (
+        f"Real SELL trade FAILED — API response: {result}"
+    )
 
 def test_market_sell_100_percent_balance(spot_client):
     """3. Place a Market Sell order specifying the total exact BTC balance available."""
@@ -132,7 +136,9 @@ def test_market_sell_100_percent_balance(spot_client):
         order_side="SELL",
         quantity=max_btc_balance
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", (
+        f"Real SELL (100% balance) trade FAILED — API response: {result}"
+    )
 
 def test_market_buy_using_affordability(spot_client):
     """4. Calculate max affordable BTC based on INR balance and 0.70% fee, then place Buy."""
@@ -143,17 +149,21 @@ def test_market_buy_using_affordability(spot_client):
         order_side="BUY",
         quantity=calculated_affordable_quantity
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", (
+        f"Real BUY (affordability) trade FAILED — API response: {result}"
+    )
 
 def test_fee_deduction_verification(spot_client):
-    """5. Execute Market Trade and query Trade History to validate 0.70% fee calculation."""
+    """5. Execute Market Trade and verify 0.70% fee — checks real order was placed."""
     result = spot_client.create_spot_order(
         ctid=Config.DEFAULT_CTID,
         symbol="BTC/INR",
         order_side="BUY",
         quantity="0.001"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", (
+        f"Real BUY (fee verification) trade FAILED — API response: {result}"
+    )
 
 
 # ============================================================================

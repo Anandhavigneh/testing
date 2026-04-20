@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 from typing import Any
 
 import requests
 
 from config import Config
+from models.order_model import UserDetailsResponse
 LOGGER = logging.getLogger("giottus.futures")
 if not LOGGER.handlers:
     handler = logging.StreamHandler()
@@ -324,6 +326,193 @@ class FuturesClient:
         }
 
         return self._request("POST", "/order", json=payload)
+
+    # -----------------------------------------------------------------------
+    # Fund-transfer methods
+    # -----------------------------------------------------------------------
+
+    def transfer_spot_to_futures(
+        self,
+        ctid: Any,
+        symbol: Any,
+        qty: Any,
+        transfer_type: int = 0,
+    ) -> dict[str, Any]:
+        """Transfer funds from the spot wallet to the futures wallet.
+
+        Args:
+            ctid:          Client trading ID.
+            symbol:        Currency / trading pair symbol.
+            qty:           Amount to transfer (string, e.g. '1.00').
+            transfer_type: 0 = spot → futures (default).
+
+        Returns:
+            Dict with at least ``Status`` and ``Code`` keys.
+        """
+        ctid_error = self._validate_ctid(ctid)
+        if ctid_error:
+            return ctid_error
+
+        qty_error = self._validate_quantity(qty)
+        if qty_error:
+            return qty_error
+
+        transfer_type_error = self._validate_transfer_type(transfer_type)
+        if transfer_type_error:
+            return transfer_type_error
+
+        payload = {
+            "ctid": str(ctid).strip(),
+            "qty": str(qty).strip(),
+            "symbol": str(symbol).strip() if symbol is not None else "",
+            "transfer_type": transfer_type,
+        }
+        return self._request("POST", "/fund/transfer", json=payload)
+
+    def transfer_futures_to_spot(
+        self,
+        ctid: Any,
+        symbol: Any,
+        qty: Any,
+        transfer_type: int = 1,
+    ) -> dict[str, Any]:
+        """Transfer funds from the futures wallet back to the spot wallet.
+
+        Args:
+            ctid:          Client trading ID.
+            symbol:        Currency / trading pair symbol.
+            qty:           Amount to transfer (string, e.g. '1.00').
+            transfer_type: 1 = futures → spot (default).
+
+        Returns:
+            Dict with at least ``Status`` and ``Code`` keys.
+        """
+        ctid_error = self._validate_ctid(ctid)
+        if ctid_error:
+            return ctid_error
+
+        qty_error = self._validate_quantity(qty)
+        if qty_error:
+            return qty_error
+
+        transfer_type_error = self._validate_transfer_type(transfer_type)
+        if transfer_type_error:
+            return transfer_type_error
+
+        payload = {
+            "ctid": str(ctid).strip(),
+            "qty": str(qty).strip(),
+            "symbol": str(symbol).strip() if symbol is not None else "",
+            "transfer_type": transfer_type,
+        }
+        return self._request("POST", "/fund/transfer", json=payload)
+
+    def fetch_user_details(
+        self,
+        ctid: Any,
+        symbol: Any = None,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> UserDetailsResponse:
+        """Fetch wallet balances and user details.
+
+        Args:
+            ctid:      Client trading ID.
+            symbol:    Trading pair symbol (optional filter).
+            page:      Page number for pagination.
+            page_size: Records per page.
+
+        Returns:
+            :class:`~models.order_model.UserDetailsResponse` Pydantic object.
+        """
+        ctid_error = self._validate_ctid(ctid)
+        if ctid_error:
+            return UserDetailsResponse(**ctid_error)
+
+        params: dict[str, Any] = {
+            "ctid": str(ctid).strip(),
+            "page": page,
+            "page_size": page_size,
+        }
+        if symbol is not None:
+            params["symbol"] = str(symbol).strip()
+
+        raw = self._request("GET", "/user-details", params=params)
+        return UserDetailsResponse.model_validate(raw)
+
+    def wait_for_balance_update(
+        self,
+        ctid: Any,
+        symbol: Any,
+        expected_futures_value: float,
+        expected_spot_value: float,
+        timeout_seconds: float = 30.0,
+        poll_interval: float = 2.0,
+    ) -> bool:
+        """Poll ``user-details`` until balances match expected values or timeout.
+
+        Args:
+            ctid:                   Client trading ID.
+            symbol:                 Trading pair / symbol.
+            expected_futures_value: Expected futures wallet amount.
+            expected_spot_value:    Expected spot wallet amount.
+            timeout_seconds:        Maximum seconds to wait (default 30).
+            poll_interval:          Seconds between polls (default 2).
+
+        Returns:
+            ``True`` if both balances match within *timeout_seconds*,
+            ``False`` otherwise.
+        """
+        tolerance = 0.01  # Allow ±0.01 for floating-point rounding
+        deadline = time.time() + timeout_seconds
+
+        while time.time() < deadline:
+            details = self.fetch_user_details(ctid=ctid, symbol=symbol)
+            try:
+                futures_val = float(
+                    details.Data.wallet_balance.futures_wallet.value or 0
+                )
+                spot_val = float(
+                    details.Data.wallet_balance.spot_wallet.value or 0
+                )
+            except (TypeError, ValueError):
+                time.sleep(poll_interval)
+                continue
+
+            if (
+                abs(futures_val - expected_futures_value) < tolerance
+                and abs(spot_val - expected_spot_value) < tolerance
+            ):
+                return True
+
+            time.sleep(poll_interval)
+
+        return False
+
+    # -----------------------------------------------------------------------
+    # Transfer-type validator (private helper)
+    # -----------------------------------------------------------------------
+
+    @staticmethod
+    def _validate_transfer_type(transfer_type: Any) -> dict[str, Any] | None:
+        """Ensure transfer_type is 0 (spot→futures) or 1 (futures→spot)."""
+        try:
+            tt = int(transfer_type)
+        except (TypeError, ValueError):
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "transfer_type must be an integer (0 or 1).",
+                "Data": [],
+            }
+        if tt not in (0, 1):
+            return {
+                "Status": "Failure",
+                "Code": 400,
+                "Message": "transfer_type must be 0 (spot→futures) or 1 (futures→spot).",
+                "Data": [],
+            }
+        return None
 
     def create_futures_limit_order(
         self,

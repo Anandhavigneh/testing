@@ -98,61 +98,89 @@ def futures_client():
 # Positive Tests
 
 def test_futures_limit_long_valid(futures_client):
+    """Place Limit Long (ETH/USDT) at 2220 — above floor 2170, below market ~2280."""
     res = futures_client.create_order(
         ctid=Config.DEFAULT_CTID,
-        symbol="BTC/USDT",
-        qty="0.001",
-        price="20000",
+        symbol="ETH/USDT",
+        qty="0.1",
+        price="2220",
         amount="0",
         order_type="1",
         order_side="0",
         leverage="1"
     )
-    assert isinstance(res, dict)
+    assert isinstance(res, dict), f"Expected dict, got: {res}"
+    if "cannot place more than 5" in res.get("Msg", ""):
+        pytest.skip("Dev env order book is full — ask admin to cancel open orders for ETH/USDT")
+    assert res.get("Status") == "Success", (
+        f"Real Futures Limit LONG order FAILED — API response: {res}"
+    )
 
 def test_futures_limit_short_valid(futures_client):
+    """Place Limit Short (ETH/USDT) at 2370 — below ceiling 2398, above market ~2280."""
     res = futures_client.create_order(
         ctid=Config.DEFAULT_CTID,
-        symbol="BTC/USDT",
-        qty="0.001",
-        price="100000",
+        symbol="ETH/USDT",
+        qty="0.1",
+        price="2370",
         amount="0",
         order_type="1",
         order_side="1",
         leverage="1"
     )
-    assert isinstance(res, dict)
+    assert isinstance(res, dict), f"Expected dict, got: {res}"
+    if "cannot place more than 5" in res.get("Msg", ""):
+        pytest.skip("Dev env order book is full — ask admin to cancel open orders for ETH/USDT")
+    assert res.get("Status") == "Success", (
+        f"Real Futures Limit SHORT order FAILED — API response: {res}"
+    )
 
 def test_futures_limit_long_with_tpsl(futures_client):
+    """Place Limit Long (ETH/USDT) at 2230 with TP=2360 SL=2180 — all within bounds."""
     res = futures_client.create_order(
         ctid=Config.DEFAULT_CTID,
-        symbol="BTC/USDT",
-        qty="0.001",
-        price="20000",
+        symbol="ETH/USDT",
+        qty="0.1",
+        price="2230",
         amount="0",
         order_type="1",
         order_side="0",
         leverage="1",
-        tp_price="30000",
-        sl_price="15000"
+        tp_price="2360",
+        sl_price="2180"
     )
-    assert isinstance(res, dict)
+    assert isinstance(res, dict), f"Expected dict, got: {res}"
+    if "cannot place more than 5" in res.get("Msg", ""):
+        pytest.skip("Dev env order book is full — ask admin to cancel open orders for ETH/USDT")
+    assert res.get("Status") == "Success", (
+        f"Real Futures Limit LONG with TP/SL FAILED — API response: {res}"
+    )
 
 def test_futures_limit_cancel_order(futures_client):
+    """Place Limit Long (ETH/USDT) at 2240 — sits in book, then cancel it."""
     res = futures_client.create_order(
         ctid=Config.DEFAULT_CTID,
-        symbol="BTC/USDT",
-        qty="0.001",
-        price="10000",
+        symbol="ETH/USDT",
+        qty="0.1",
+        price="2240",
         amount="0",
         order_type="1",
         order_side="0",
         leverage="1"
     )
-    if "Data" in res and "order_id" in res["Data"]:
-        order_id = res["Data"]["order_id"]
+    assert isinstance(res, dict), f"Expected dict, got: {res}"
+    if "cannot place more than 5" in res.get("Msg", ""):
+        pytest.skip("Dev env order book is full — ask admin to cancel open orders for ETH/USDT")
+    assert res.get("Status") == "Success", (
+        f"Limit order placement FAILED (cannot cancel) — API response: {res}"
+    )
+    order_id = res.get("Data", {}).get("order_id") if isinstance(res.get("Data"), dict) else None
+    if order_id:
         cancel_res = futures_client.cancel_order(ctid=Config.DEFAULT_CTID, order_id=str(order_id))
-        assert isinstance(cancel_res, dict)
+        assert isinstance(cancel_res, dict), f"Cancel returned non-dict: {cancel_res}"
+        assert cancel_res.get("Status") == "Success", (
+            f"Order cancel FAILED — API response: {cancel_res}"
+        )
 
 # Negative Tests
 
