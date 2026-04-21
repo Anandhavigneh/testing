@@ -2,6 +2,8 @@ import logging
 import re
 from typing import Any
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from config import Config
 
 LOGGER = logging.getLogger("giottus.spot")
@@ -23,6 +25,7 @@ class SpotClient:
         self.base_url = (base_url or self.BASE_URL).rstrip("/")
         self.timeout = timeout
         self.session = requests.Session()
+        self.session.verify = False
         self.session.headers.update({
             "Accept": "application/json",
             "Content-Type": "application/json",

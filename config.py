@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 
 # TODO: Replace this placeholder with a valid CTID, or set GIOTTUS_DEFAULT_CTID.
-DEFAULT_CTID = os.getenv("GIOTTUS_DEFAULT_CTID", "1529")
+DEFAULT_CTID = os.getenv("GIOTTUS_DEFAULT_CTID", "1686")
 COINPAIR_BTC_USDT = "BTC/USDT"
 COINPAIR_ETH_USDT = "ETH/USDT"
 
@@ -16,6 +16,8 @@ class Config:
     """Compatibility wrapper expected by the existing tests."""
 
     DEFAULT_CTID = DEFAULT_CTID
+    DEFAULT_SYMBOL = "USDT"
+    DEFAULT_FUTURES_SYMBOL = "USDT"
     COINPAIR_BTC_USDT = COINPAIR_BTC_USDT
     COINPAIR_ETH_USDT = COINPAIR_ETH_USDT
     GIOTTUS_BASE_SERVICE_URL = GIOTTUS_BASE_SERVICE_URL

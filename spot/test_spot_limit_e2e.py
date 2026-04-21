@@ -81,7 +81,7 @@ def test_limit_buy_by_valid_price_quantity(spot_client):
         quantity="0.005",
         price="5000000.00"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 def test_limit_sell_by_valid_price_quantity(spot_client):
     """2. Place a Limit Sell order specifying a valid base quantity and price."""
@@ -92,7 +92,7 @@ def test_limit_sell_by_valid_price_quantity(spot_client):
         quantity="0.005",
         price="6000000.00"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 def test_limit_buy_using_affordability(spot_client):
     """3. Place Limit Buy maximizing INR limits relative to the Limit Price."""
@@ -105,7 +105,7 @@ def test_limit_buy_using_affordability(spot_client):
         quantity=calculated_affordable_quantity,
         price=limit_price
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 # ============================================================================
 # NEGATIVE TEST CASES - Error Scenarios & Validation

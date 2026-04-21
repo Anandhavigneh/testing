@@ -119,6 +119,7 @@ def test_futures_market_long_valid_quantity(futures_client):
         leverage="1"
     )
     assert isinstance(res, dict), f"Expected dict response, got: {res}"
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
     assert "Code" in res or "Status" in res, f"Unexpected response: {res}"
 
 def test_futures_market_short_valid_quantity(futures_client):
@@ -134,6 +135,7 @@ def test_futures_market_short_valid_quantity(futures_client):
         leverage="1"
     )
     assert isinstance(res, dict), f"Expected dict response, got: {res}"
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
     assert "Code" in res or "Status" in res, f"Unexpected response: {res}"
 
 def test_futures_market_long_with_leverage(futures_client):
@@ -149,6 +151,7 @@ def test_futures_market_long_with_leverage(futures_client):
         leverage="5"
     )
     assert isinstance(res, dict), f"Expected dict response, got: {res}"
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
     assert "Code" in res or "Status" in res, f"Unexpected response: {res}"
 
 def test_futures_market_short_with_leverage(futures_client):
@@ -164,6 +167,7 @@ def test_futures_market_short_with_leverage(futures_client):
         leverage="10"
     )
     assert isinstance(res, dict), f"Expected dict response, got: {res}"
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
     assert "Code" in res or "Status" in res, f"Unexpected response: {res}"
 
 def test_futures_market_close_long_position(futures_client):
@@ -180,6 +184,7 @@ def test_futures_market_close_long_position(futures_client):
         reduce_only="1"
     )
     assert isinstance(res, dict)
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
 
 def test_futures_market_close_short_position(futures_client):
     res = futures_client.create_order(
@@ -194,6 +199,7 @@ def test_futures_market_close_short_position(futures_client):
         reduce_only="1"
     )
     assert isinstance(res, dict)
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
 
 # Negative Tests
 

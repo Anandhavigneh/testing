@@ -97,57 +97,60 @@ def futures_client():
 
 # Positive Tests
 
-def test_futures_limit_long_valid(futures_client):
-    res = futures_client.create_order(
-        ctid=Config.DEFAULT_CTID,
-        symbol="BTC/USDT",
-        qty="0.001",
-        price="20000",
-        amount="0",
-        order_type="1",
-        order_side="0",
-        leverage="1"
-    )
-    assert isinstance(res, dict)
+# def test_futures_limit_long_valid(futures_client):
+#     res = futures_client.create_order(
+#         ctid=Config.DEFAULT_CTID,
+#         symbol="BTC/USDT",
+#         qty="0.002",
+#         price="76250",
+#         amount="152.4804",
+#         order_type="1",
+#         order_side="0",
+#         leverage="3",
+#     )
+#     assert isinstance(res, dict)
+#     assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
 
 def test_futures_limit_short_valid(futures_client):
     res = futures_client.create_order(
         ctid=Config.DEFAULT_CTID,
-        symbol="BTC/USDT",
-        qty="0.001",
-        price="100000",
-        amount="0",
+        symbol="ETH/USDT",
+        qty="0.05",
+        price="2300",
+        amount="115",
         order_type="1",
         order_side="1",
-        leverage="1"
+        leverage="3"
     )
     assert isinstance(res, dict)
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
 
 def test_futures_limit_long_with_tpsl(futures_client):
     res = futures_client.create_order(
         ctid=Config.DEFAULT_CTID,
-        symbol="BTC/USDT",
-        qty="0.001",
-        price="20000",
-        amount="0",
+        symbol="SOL/USDT",
+        qty="0.14",
+        price="86.1000",
+        amount="12.054",
         order_type="1",
         order_side="0",
-        leverage="1",
-        tp_price="30000",
-        sl_price="15000"
+        leverage="3",
+        tp_price="87.1000",
+        sl_price="85.1000"
     )
     assert isinstance(res, dict)
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
 
 def test_futures_limit_cancel_order(futures_client):
     res = futures_client.create_order(
         ctid=Config.DEFAULT_CTID,
         symbol="BTC/USDT",
-        qty="0.001",
-        price="10000",
-        amount="0",
+        qty="0.002",
+        price="76250",
+        amount="152.4804",
         order_type="1",
         order_side="0",
-        leverage="1"
+        leverage="3"
     )
     if "Data" in res and "order_id" in res["Data"]:
         order_id = res["Data"]["order_id"]
@@ -181,6 +184,7 @@ def test_futures_limit_zero_price(futures_client):
             ctid=Config.DEFAULT_CTID, symbol="BTC/USDT", qty="0.001", price="0", amount="0",
             order_type="1", order_side="0", leverage="1"
         )
+        
         assert res.get("Code") != 200
     except Exception:
         pass

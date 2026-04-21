@@ -111,7 +111,7 @@ def test_market_buy_by_valid_quantity(spot_client):
         order_side="BUY",
         quantity="0.005"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 def test_market_sell_by_valid_quantity(spot_client):
     """2. Place a Market Sell order specifying a valid base currency quantity."""
@@ -121,7 +121,7 @@ def test_market_sell_by_valid_quantity(spot_client):
         order_side="SELL",
         quantity="0.005"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 def test_market_sell_100_percent_balance(spot_client):
     """3. Place a Market Sell order specifying the total exact BTC balance available."""
@@ -132,7 +132,7 @@ def test_market_sell_100_percent_balance(spot_client):
         order_side="SELL",
         quantity=max_btc_balance
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 def test_market_buy_using_affordability(spot_client):
     """4. Calculate max affordable BTC based on INR balance and 0.70% fee, then place Buy."""
@@ -143,7 +143,7 @@ def test_market_buy_using_affordability(spot_client):
         order_side="BUY",
         quantity=calculated_affordable_quantity
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 def test_fee_deduction_verification(spot_client):
     """5. Execute Market Trade and query Trade History to validate 0.70% fee calculation."""
@@ -153,7 +153,7 @@ def test_fee_deduction_verification(spot_client):
         order_side="BUY",
         quantity="0.001"
     )
-    assert result.get("Status") in ["Success", "Failure"]
+    assert result.get("Status") == "Success", f"Order failed: {result}"
 
 
 # ============================================================================

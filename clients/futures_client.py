@@ -7,6 +7,8 @@ import re
 from typing import Any
 
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from config import Config
 LOGGER = logging.getLogger("giottus.futures")
@@ -33,6 +35,7 @@ class FuturesClient:
         self.base_url = (base_url or self.BASE_URL).rstrip("/")
         self.timeout = timeout
         self.session = session or requests.Session()
+        self.session.verify = False
         self.session.headers.update(
             {
                 "Accept": "application/json",
@@ -361,3 +364,124 @@ class FuturesClient:
         }
 
         return self._request("POST", "/order", json=payload)
+
+    def transfer_spot_to_futures(self, ctid: Any, symbol: Any, qty: Any, transfer_type: int = 0) -> dict[str, Any]:
+        """Transfer funds from spot wallet to futures wallet."""
+        payload = {
+            "ctid": str(ctid).strip(),
+            "symbol": str(symbol).strip(),
+            "qty": str(qty).strip(),
+            "transfer_type": transfer_type,
+        }
+        return self._request("POST", "/fund/transfer", json=payload)
+
+    def transfer_futures_to_spot(self, ctid: Any, symbol: Any, qty: Any, transfer_type: int = 1) -> dict[str, Any]:
+        """Transfer funds from futures wallet to spot wallet."""
+        payload = {
+            "ctid": str(ctid).strip(),
+            "symbol": str(symbol).strip(),
+            "qty": str(qty).strip(),
+            "transfer_type": transfer_type,
+        }
+        return self._request("POST", "/fund/transfer", json=payload)
+
+    def fetch_user_details(self, ctid: Any, symbol: str = None) -> Any:
+        params = {"ctid": str(ctid).strip()}
+        if symbol:
+            params["symbol"] = symbol
+        resp = self._request("GET", "/user-details", params=params)
+
+        # Track whether this was a real API error (Code != 100 or Status != Success)
+        api_error = resp.get("Status") != "Success" or resp.get("Code") not in (100, None)
+
+        # Guard against API returning an empty list for 'Data' on failure
+        if "Data" not in resp or not isinstance(resp["Data"], dict):
+            resp["Data"] = {
+                "wallet_balance": {
+                    "futures_wallet": {"asset": "USDT", "value": "0.0"},
+                    "spot_wallet": {"asset": "USDT", "value": "0.0"},
+                }
+            }
+
+        # Store the API error flag so callers can detect it
+        resp["_api_error"] = api_error
+
+        # Helper to enable dot access to dictionary fields
+        class DotDict(dict):
+            __getattr__ = dict.get
+            __setattr__ = dict.__setitem__
+            __delattr__ = dict.__delitem__
+
+        def to_dotdict(d):
+            if isinstance(d, dict):
+                return DotDict({k: to_dotdict(v) for k, v in d.items()})
+            elif isinstance(d, list):
+                return [to_dotdict(vi) for vi in d]
+            return d
+
+        return to_dotdict(resp)
+
+    def wait_for_balance_update(
+        self,
+        ctid: Any,
+        symbol: Any,
+        expected_futures_value: float,
+        expected_spot_value: float,
+        timeout_seconds: float = 30.0,
+        poll_interval: float = 2.0,
+    ) -> bool:
+        """Poll user-details until balances match expected values or timeout.
+
+        Returns False immediately after 3 consecutive API errors to avoid hanging
+        when the user-details endpoint is unavailable in the test environment.
+        """
+        import time
+        start_time = time.time()
+        tolerance = 0.01
+        consecutive_api_errors = 0
+        MAX_API_ERRORS = 3  # Abort polling after this many consecutive errors
+
+        while time.time() - start_time < timeout_seconds:
+            details = self.fetch_user_details(ctid=ctid, symbol=symbol)
+
+            # If the API itself is returning errors, abort rather than polling forever
+            if details.get("_api_error"):
+                consecutive_api_errors += 1
+                LOGGER.warning(
+                    "fetch_user_details returned an API error (%d/%d). "
+                    "Status=%s Code=%s Msg=%s",
+                    consecutive_api_errors,
+                    MAX_API_ERRORS,
+                    details.get("Status"),
+                    details.get("Code"),
+                    details.get("Msg"),
+                )
+                if consecutive_api_errors >= MAX_API_ERRORS:
+                    LOGGER.error(
+                        "Aborting balance polling after %d consecutive API errors. "
+                        "The user-details endpoint may not support this CTID/symbol.",
+                        MAX_API_ERRORS,
+                    )
+                    return False
+                time.sleep(poll_interval)
+                continue
+
+            # Reset error counter on a successful response
+            consecutive_api_errors = 0
+
+            try:
+                futures_val = float(details.Data.wallet_balance.futures_wallet.value)
+                spot_val = float(details.Data.wallet_balance.spot_wallet.value)
+
+                if (
+                    abs(futures_val - expected_futures_value) < tolerance
+                    and abs(spot_val - expected_spot_value) < tolerance
+                ):
+                    return True
+            except Exception as e:
+                LOGGER.error("Error reading balance fields: %s", e)
+
+            time.sleep(poll_interval)
+
+        return False
+

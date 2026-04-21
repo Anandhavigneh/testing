@@ -16,6 +16,7 @@ class FuturesTradingClient:
         self.client = httpx.Client(
             base_url=Config.GIOTTUS_FUTURES_SERVICE_URL,
             timeout=30.0,
+            verify=False
         )
 
     # =========================================================================

@@ -1,0 +1,494 @@
+Introduction
+Welcome to the Giottus API! You can use our API to access Giottus API endpoints, which can get information on various cryptocurrencies in our Exchange.
+
+You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+
+Public Endpoints
+Get ticker data(v1)
+const data = async () => {
+  const response = await fetch('https://www.giottus.com/api/ticker');
+  const output = await response.json(); //extract JSON from the http response
+
+}
+The above command returns JSON structured like this:
+
+
+{
+  "market":
+  {
+  "EOS/USDT":{"top_bid":"0.08 USDT","top_ask":"508652.00 USDT"},
+  "SNX/TUSD":{"top_bid":null,"top_ask":null},
+  "XRP/TUSD":{"top_bid":null,"top_ask":"79.8000000 TUSD"},
+  "MCO/USDT":{"top_bid":"0.01 USDT","top_ask":null},
+  "LTC/INR":{"top_bid":"4700.000 INR","top_ask":"4799.000 INR"},
+  "ZRX/BTC":{"top_bid":"0.00000003 BTC","top_ask":null},
+  "LTC/TUSD":{"top_bid":null,"top_ask":"4988.0000000 TUSD"},
+  "COMP/INR":{"top_bid":"943.000 INR","top_ask":null},
+  "NMR/INR":{"top_bid":"2001.000 INR","top_ask":"4000.000 INR"},
+   ...
+  }
+  "prices":
+  {
+  "SXP/INR":"279.000",
+  "OXT/USDT":"0.56",
+  "EOS/USDT":"2.61",
+  "SNX/TUSD":"6.3373856",
+  "XRP/TUSD":"0.3061831",
+  "MCO/USDT":"5.36",
+  "LTC/INR":"4730.000",
+  "ZRX/BTC":"0.00003388",
+  "LTC/TUSD":"52.3466800",
+  "COMP/INR":"20000.000",
+  "NMR/INR":"4117.000",
+  ...
+  }
+
+This endpoint retrieves all ticker data(version1).
+
+HTTP Request
+GET https://www.giottus.com/api/ticker
+
+Get ticker data(v2)
+const data = async () => {
+  const response = await fetch('https://www.giottus.com/api/v2/ticker');
+  const output = await response.json(); //extract JSON from the http response
+
+}
+The above command returns JSON structured like this:
+
+
+{
+  "xlmbtc": 
+     {
+       "sell": "0.00080413", 
+       "high": "5E-8", 
+       "buy": "0.00000029",
+       "last": "0.00000005",
+       "name": "XLM/BTC", 
+       "base_unit": "xlm", 
+       "type": "SPOT", 
+       "volume": "0E-8", 
+       "quote_unit": "btc", 
+       "at": 1598952187, 
+       "open": "5E-8", 
+       "low": "5E-8"
+     },
+   "ethtusd": 
+     {
+       "sell": "27979.0000000", 
+       "high": "0E-7",
+       "buy": "25.0000000", 
+       "last": "168.4931507",
+       "name": "ETH/TUSD", 
+       "base_unit": "eth", 
+       "type": "SPOT", 
+       "volume": "0E-7", 
+       "quote_unit": "tusd", 
+       "at": 1598952187, 
+       "open": "0E-7", 
+       "low": "0E-7"
+     }, 
+     ...
+
+}
+
+
+This endpoint retrieves all ticker data(version 2).
+
+HTTP Request
+GET https://www.giottus.com/api/v2/ticker
+
+Get Specific Coinpair Market depth data
+const data = async () => {
+  const response = await fetch('https://www.giottus.com/api/depth?market'=btcinr);
+  const output = await response.json(); //extract JSON from the http response
+
+}
+The above command returns JSON structured like this:
+
+{
+  "timestamp": 1598952936,
+  "bids": [
+    [
+      "891000.000",
+      "0.11223344"
+    ],
+    [
+      "890000.000",
+      "0.02567642"
+    ],
+    [
+      "886500.000",
+      "0.10105902"
+    ],
+    [
+      "886100.000",
+      "0.00225453"
+    ],
+    [
+      "886000.000",
+      "0.02488604"
+    ],
+    [
+      "885000.000",
+      "0.38871674"
+    ],
+    [
+      "882000.000",
+      "0.06042886"
+    ],
+    [
+      "881505.000",
+      "0.00585250"
+    ],
+    [
+      "881128.000",
+      "0.13982546"
+    ],
+    [
+      "881123.030",
+      "0.00056748"
+    ],
+    [
+      "880010.000",
+      "0.39772277"
+    ],
+    [
+      "876100.001",
+      "0.00010712"
+    ],
+    [
+      "876100.000",
+      "0.00060587"
+    ],
+    [
+      "875033.000",
+      "0.00007523"
+    ],
+    [
+      "875000.000",
+      "0.00034285"
+    ],
+    [
+      "870001.000",
+      "0.03450000"
+    ],
+    [
+      "870000.000",
+      "0.00594812"
+    ],
+    [
+      "860500.010",
+      "0.01847767"
+    ],
+    [
+      "860500.000",
+      "0.11423253"
+    ],
+    [
+      "860000.001",
+      "0.00465116"
+    ]
+  ],
+  "asks": [
+    [
+      "892000.000",
+      "0.00915770"
+    ],
+    [
+      "894000.000",
+      "0.00150902"
+    ],
+    [
+      "894400.000",
+      "0.01106050"
+    ],
+    [
+      "898990.000",
+      "0.05481259"
+    ],
+    [
+      "898999.999",
+      "0.00010000"
+    ],
+    [
+      "899000.000",
+      "0.00560701"
+    ],
+    [
+      "899989.000",
+      "0.11566951"
+    ],
+    [
+      "899998.900",
+      "0.01078424"
+    ],
+    [
+      "900000.000",
+      "0.19377472"
+    ],
+    [
+      "900099.000",
+      "0.00564354"
+    ],
+    [
+      "904989.000",
+      "0.22157804"
+    ],
+    [
+      "905000.000",
+      "0.06925853"
+    ],
+    [
+      "905500.000",
+      "0.00112784"
+    ],
+    [
+      "910000.000",
+      "0.04829816"
+    ],
+    [
+      "911000.000",
+      "0.02826742"
+    ],
+    [
+      "912000.000",
+      "0.00889041"
+    ],
+    [
+      "912400.000",
+      "0.01054765"
+    ],
+    [
+      "912500.000",
+      "0.00224687"
+    ],
+    [
+      "914999.000",
+      "0.08770084"
+    ],
+    [
+      "915000.000",
+      "0.52727549"
+    ]
+  ]
+}
+This endpoint retrieves a specific market depth data.
+
+Inside HTML code blocks like this one, you can't use Markdown, so use <code> blocks to denote code.
+HTTP Request
+GET https://www.giottus.com/api/v2/depth?market=<coinpair>
+
+URL Parameters
+Parameter	Description
+market	The name of the coinpair.(ex:btcinr)
+Get Specific Coinpair Trade data
+const data = async () => {
+  const response = await fetch('https://www.giottus.com/api/trades?market'=btcinr);
+  const output = await response.json(); //extract JSON from the http response
+
+}
+The above command returns JSON structured like this:
+
+[
+  {
+    "created_at": "2020-09-01T15:08:29",
+    "funds": "8159.511",
+    "price": "891000.000",
+    "side": "Sell",
+    "volume": "0.00915770",
+    "id": "7008141869057266933",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T15:03:11",
+    "funds": "4999.999",
+    "price": "892000.000",
+    "side": "Sell",
+    "volume": "0.00560538",
+    "id": "10752837506264887587",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T15:03:11",
+    "funds": "15081.285",
+    "price": "892000.000",
+    "side": "Sell",
+    "volume": "0.01690727",
+    "id": "16764601291481728357",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:56:50",
+    "funds": "2758.715",
+    "price": "892000.000",
+    "side": "Sell",
+    "volume": "0.00309273",
+    "id": "7623090291879810866",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:53:22",
+    "funds": "9999.998",
+    "price": "894000.000",
+    "side": "Sell",
+    "volume": "0.01118568",
+    "id": "14803174360842785986",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:45:00",
+    "funds": "8479.957",
+    "price": "893290.000",
+    "side": "Sell",
+    "volume": "0.00949295",
+    "id": "12869675166295011447",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:44:55",
+    "funds": "4120.041",
+    "price": "893290.000",
+    "side": "Buy",
+    "volume": "0.00461221",
+    "id": "11824187209587338806",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:42:02",
+    "funds": "2053.254",
+    "price": "893290.000",
+    "side": "Sell",
+    "volume": "0.00229853",
+    "id": "4886379288416445488",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:41:53",
+    "funds": "11937.686",
+    "price": "893290.000",
+    "side": "Sell",
+    "volume": "0.01336373",
+    "id": "17348991274549328615",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:41:32",
+    "funds": "10012.405",
+    "price": "893290.000",
+    "side": "Sell",
+    "volume": "0.01120846",
+    "id": "7109777549061232836",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:40:59",
+    "funds": "9987.599",
+    "price": "893290.000",
+    "side": "Sell",
+    "volume": "0.01118069",
+    "id": "14938290231779200673",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:40:30",
+    "funds": "5859.053",
+    "price": "893290.000",
+    "side": "Buy",
+    "volume": "0.00655896",
+    "id": "11949198944261538752",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:39:19",
+    "funds": "974.082",
+    "price": "892000.000",
+    "side": "Sell",
+    "volume": "0.00109202",
+    "id": "12853564064947876829",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:36:54",
+    "funds": "24328.016",
+    "price": "892000.000",
+    "side": "Buy",
+    "volume": "0.02727356",
+    "id": "16337744122966882558",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:36:54",
+    "funds": "2023.520",
+    "price": "892000.000",
+    "side": "Buy",
+    "volume": "0.00226852",
+    "id": "8235340995820660333",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:29:52",
+    "funds": "31873.175",
+    "price": "890200.000",
+    "side": "Buy",
+    "volume": "0.03580451",
+    "id": "713891493505654837",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:27:50",
+    "funds": "34734.938",
+    "price": "890000.000",
+    "side": "Sell",
+    "volume": "0.03902802",
+    "id": "14181273631291188609",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:24:01",
+    "funds": "590.942",
+    "price": "890000.000",
+    "side": "Sell",
+    "volume": "0.00066398",
+    "id": "17913242024750802146",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:22:58",
+    "funds": "9451.800",
+    "price": "890000.000",
+    "side": "Sell",
+    "volume": "0.01062000",
+    "id": "9595915118957543497",
+    "market": "btcinr"
+  },
+  {
+    "created_at": "2020-09-01T14:20:12",
+    "funds": "51901.811",
+    "price": "890200.000",
+    "side": "Sell",
+    "volume": "0.05830354",
+    "id": "11638049149672437710",
+    "market": "btcinr"
+  }
+]
+This endpoint retrives a specific coinpair trade data.
+
+HTTP Request
+GET https://www.giottus.com/api/v2/trades?market=<coinpair>
+
+URL Parameters
+Parameter	Description
+market	The name of the coinpair.(ex:btcinr)
+Errors
+ Please feel free to contact support@giottus.com for any other queries related to this api.
+The Giottus API uses the following error codes:
+
+Error Code	Meaning
+400	Bad Request -- Your request is invalid.
+403	Forbidden -- The requested data is for administrators only.
+404	Not Found -- The requested data could not be found.
+405	Method Not Allowed -- You tried to access an invalid method.
+429	Too Many Requests -- You're requesting too many requests! Slow down!
+500	Internal Server Error -- We had a problem with our server. Try again later.
+503	Service Unavailable -- We're temporarily offline for maintenance. Please try again later.
