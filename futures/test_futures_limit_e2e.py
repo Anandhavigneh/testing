@@ -97,19 +97,19 @@ def futures_client():
 
 # Positive Tests
 
-# def test_futures_limit_long_valid(futures_client):
-#     res = futures_client.create_order(
-#         ctid=Config.DEFAULT_CTID,
-#         symbol="BTC/USDT",
-#         qty="0.002",
-#         price="76250",
-#         amount="152.4804",
-#         order_type="1",
-#         order_side="0",
-#         leverage="3",
-#     )
-#     assert isinstance(res, dict)
-#     assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
+def test_futures_limit_long_valid(futures_client):
+    res = futures_client.create_order(
+        ctid=Config.DEFAULT_CTID,
+        symbol="BTC/USDT",
+        qty="0.002",
+        price="76250",
+        amount="152.4804",
+        order_type="1",
+        order_side="0",
+        leverage="3",
+    )
+    assert isinstance(res, dict)
+    assert res.get("Status") == "Success" or str(res.get("Code")) in ["100", "200"], f"Order failed: {res}"
 
 def test_futures_limit_short_valid(futures_client):
     res = futures_client.create_order(
