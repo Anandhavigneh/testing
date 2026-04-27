@@ -22,7 +22,7 @@ Client Methods:
   • FuturesClient.close_position(ctid, position_id)
 
 ================================================================================
-                              TEST COVERAGE
+                              TEST COVERAGE 
 ================================================================================
 
 TOTAL TEST CASES: 12

@@ -56,13 +56,13 @@ TOTAL TEST CASES: 14
 │    → Send Limit order with qty = None → should fail                        │
 │                                                                              │
 │ 7. test_futures_limit_empty_quantity()                                       │
-│    → Send Limit order with qty = "" → should fail                          │
+│    → Send Limit order with qty = "" → should fail                            │
 │                                                                              │
 │ 8. test_futures_limit_negative_quantity()                                    │
-│    → Send Limit order with qty = "-0.5" → should fail                      │
+│    → Send Limit order with qty = "-0.5" → should fail                        │
 │                                                                              │
 │ 9. test_futures_limit_invalid_order_type()                                   │
-│    → Send Limit order with order_type = "99" → should fail                 │
+│    → Send Limit order with order_type = "99" → should fail                   │
 │                                                                              │
 │ 10. test_futures_limit_invalid_symbol_format()                               │
 │    → Send Limit order with symbol = "BTCUSDT" (no "/") → should fail       │
