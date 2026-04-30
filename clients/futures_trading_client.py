@@ -116,3 +116,32 @@ class FuturesTradingClient:
         resp = self.client.get("trade/history", params=params)
         resp.raise_for_status()
         return resp.json()
+
+    # =========================================================================
+    # TPSL MANAGEMENT
+    # =========================================================================
+
+    def update_tpsl_order(self, ctid: int, symbol: str, tp_qty: str = None, 
+                         tp_price: str = None, sl_qty: str = None, 
+                         sl_price: str = None) -> dict:
+        """Update take profit/stop loss orders for an active position."""
+        payload = {"ctid": ctid, "symbol": symbol}
+        if tp_qty:
+            payload["tp_qty"] = tp_qty
+        if tp_price:
+            payload["tp_price"] = tp_price
+        if sl_qty:
+            payload["sl_qty"] = sl_qty
+        if sl_price:
+            payload["sl_price"] = sl_price
+        
+        resp = self.client.post("tpsl/order", json=payload)
+        resp.raise_for_status()
+        return resp.json()
+
+    def view_tpsl_orders(self, ctid: int, symbol: str) -> dict:
+        """View take profit/stop loss orders for a symbol."""
+        params = {"ctid": ctid, "symbol": symbol}
+        resp = self.client.get("view/tpsl", params=params)
+        resp.raise_for_status()
+        return resp.json()
