@@ -1,0 +1,10 @@
+# Ensure consistent line endings across all platforms
+* text=auto
+
+# Keep important text files in LF form
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
