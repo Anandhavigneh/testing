@@ -1,0 +1,5 @@
+[INFO] Giottus request GET https://devtesting.giottus.com/service5010/api/v1/spot/config
+[INFO] Giottus request GET https://devtesting.giottus.com/service5010/api/v1/wallet?ctid=1686
+[INFO] Giottus request GET https://devtesting.giottus.com/service5010/api/v1/spot/ticker
+[INFO] Giottus request GET https://devtesting.giottus.com/trade/createorder
+[INFO] Giottus request GET https://devtesting.giottus.com/service5010/api/v1/spot/trades?symbol=BTC/USDT&ctid=1686

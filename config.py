@@ -11,7 +11,7 @@ COINPAIR_ETH_USDT = "ETH/USDT"
 
 GIOTTUS_BASE_SERVICE_URL = os.getenv("GIOTTUS_BASE_SERVICE_URL", "https://devtesting.giottus.com/service5010")
 GIOTTUS_FUTURES_SERVICE_URL = os.getenv("GIOTTUS_FUTURES_SERVICE_URL", "https://devtesting.giottus.com/service5031/api/v1/futures")
-
+print(f"Using GIOTTUS_BASE_SERVICE_URL: {GIOTTUS_BASE_SERVICE_URL}")
 class Config:
     """Compatibility wrapper expected by the existing tests."""
 

@@ -44,17 +44,27 @@ class SpotClient:
         quantity_error = self._validate_quantity(quantity)
         if quantity_error: return quantity_error
 
-        # Prepare Payload
-        payload = {
+        ordertype = 0 if str(order_side).upper().strip() == "BUY" else 1
+
+        params = {
             "ctid": str(ctid).strip(),
-            "symbol": str(symbol).strip(),
-            "order_type": "MARKET",
-            "order_side": str(order_side).upper().strip(),
+            "trantype": "0",  # Market
+            "ordertype": str(ordertype),
             "quantity": str(quantity).strip(),
+            "coinpair": str(symbol).strip(),
         }
 
-        # NOTE TO USER: Update this endpoint string if the Spot URL path is different
-        return self._request("POST", "/api/v1/spot/order", json=payload)
+        # The actual route is on the domain root, not /service5010
+        domain = self.base_url.replace("/service5010", "")
+        url = f"{domain}/trade/createorder"
+        
+        LOGGER.info("Giottus request GET %s", url)
+        try:
+            response = self.session.get(url, params=params, timeout=self.timeout)
+            return self._normalize_response(response)
+        except requests.RequestException as exc:
+            LOGGER.error("Giottus request failed: %s", exc)
+            return {"Status": "Failure", "Code": -1, "Message": f"Request failed: {exc}", "Data": []}
 
     def create_spot_limit_order(self, ctid: Any, symbol: Any, order_side: Any, quantity: Any, price: Any) -> dict[str, Any]:
         """Place a Spot LIMIT order."""
@@ -72,18 +82,77 @@ class SpotClient:
         price_error = self._validate_price(price)
         if price_error: return price_error
 
-        # Prepare Payload
-        payload = {
+        ordertype = 0 if str(order_side).upper().strip() == "BUY" else 1
+
+        params = {
             "ctid": str(ctid).strip(),
-            "symbol": str(symbol).strip(),
-            "order_type": "LIMIT",
-            "order_side": str(order_side).upper().strip(),
+            "trantype": "1",  # Limit
+            "ordertype": str(ordertype),
             "quantity": str(quantity).strip(),
             "price": str(price).strip(),
+            "coinpair": str(symbol).strip(),
         }
 
-        # Uses identical spot endpoint for creation
-        return self._request("POST", "/api/v1/spot/order", json=payload)
+        domain = self.base_url.replace("/service5010", "")
+        url = f"{domain}/trade/createorder"
+        
+        LOGGER.info("Giottus request GET %s", url)
+        try:
+            response = self.session.get(url, params=params, timeout=self.timeout)
+            return self._normalize_response(response)
+        except requests.RequestException as exc:
+            LOGGER.error("Giottus request failed: %s", exc)
+            return {"Status": "Failure", "Code": -1, "Message": f"Request failed: {exc}", "Data": []}
+
+    def get_config(self) -> dict[str, Any]:
+        """Fetch spot configurations."""
+        return self._request("GET", "/api/v1/spot/config")
+
+    def get_ticker(self) -> dict[str, Any]:
+        """Fetch spot order book / ticker."""
+        return self._request("GET", "/api/v1/spot/ticker")
+
+    def get_open_orders(self, ctid: Any) -> dict[str, Any]:
+        """Fetch active/open spot orders."""
+        # Using the dashboard init endpoint provided by the user
+        domain = self.base_url.replace("/service5010", "")
+        # The key is likely 'openorders' or 'open_orders', assuming 'openorders'
+        url = f"{domain}/dashboard/init/openorders/{ctid}"
+        
+        LOGGER.info("Giottus request GET %s", url)
+        try:
+            response = self.session.get(url, timeout=self.timeout)
+            # The dashboard endpoint might return a different structure, we normalize it
+            # Normalization assumes standard {"Status": "...", "Data": ...} format
+            return self._normalize_response(response)
+        except requests.RequestException as exc:
+            LOGGER.error("Giottus request failed: %s", exc)
+            return {"Status": "Failure", "Code": -1, "Message": f"Request failed: {exc}", "Data": []}
+
+    def get_closed_orders(self, ctid: Any) -> dict[str, Any]:
+        """Fetch closed/completed spot orders."""
+        domain = self.base_url.replace("/service5010", "")
+        url = f"{domain}/dashboard/init/closedorders/{ctid}"
+        
+        LOGGER.info("Giottus request GET %s", url)
+        try:
+            response = self.session.get(url, timeout=self.timeout)
+            return self._normalize_response(response)
+        except requests.RequestException as exc:
+            LOGGER.error("Giottus request failed: %s", exc)
+            return {"Status": "Failure", "Code": -1, "Message": f"Request failed: {exc}", "Data": []}
+
+    def get_trade_history(self, symbol: str, ctid: Any) -> dict[str, Any]:
+        """
+        Fetch executed spot trades for a specific market based on official API doc.
+        Endpoint: GET /api/v1/spot/trades
+        """
+        return self._request("GET", f"/api/v1/spot/trades?symbol={symbol}&ctid={ctid}")
+
+    def get_balance(self, ctid: Any) -> dict[str, Any]:
+        """Fetch wallet balances."""
+        # The exact test endpoint might vary, but API docs suggest /api/v1/wallet
+        return self._request("GET", f"/api/v1/wallet?ctid={ctid}")
 
     def _request(self, method: str, path: str, **kwargs: Any) -> dict[str, Any]:
         url = f"{self.base_url}{path}"
