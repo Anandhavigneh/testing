@@ -72,7 +72,7 @@ TOTAL TEST CASES: 14
                             EXECUTION NOTES
 ================================================================================
 
-  • All tests use the `futures_client` fixture (FuturesClient from test2.py)
+  • All tests use the `futures_client` fixture (FuturesClient from clients.futures_client)
   • Tests are marked with @pytest.mark.futures
   • order_type: 1 = Limit | order_side: 0 = Long, 1 = Short
   • Limit Long uses a below-market price; Limit Short uses an above-market price

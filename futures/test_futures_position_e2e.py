@@ -75,7 +75,7 @@ TOTAL TEST CASES: 12
                             EXECUTION NOTES
 ================================================================================
 
-  • All tests use the `futures_client` fixture (FuturesClient from test2.py)
+  • All tests use the `futures_client` fixture (FuturesClient from clients.futures_client)
   • Tests are marked with @pytest.mark.futures
   • Negative tests catch both HTTP errors and non-200 API response codes
   • cancel/close tests use fake IDs; they verify the API rejects bad requests

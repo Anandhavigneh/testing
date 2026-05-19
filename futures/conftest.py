@@ -1,6 +1,6 @@
 """
 conftest.py — Futures test configuration.
-Inserts the project root into sys.path so that `config`, `test2`, and `models`
+Inserts the project root into sys.path so that `config`, `futures_client`, and `models`
 are importable when pytest collects tests from this subdirectory.
 """
 import sys

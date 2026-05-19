@@ -82,7 +82,7 @@ TOTAL TEST CASES: 18
                             EXECUTION NOTES
 ================================================================================
 
-  • All tests use the `futures_client` fixture (FuturesClient from test2.py)
+  • All tests use the `futures_client` fixture (FuturesClient from clients.futures_client)
   • Tests are marked with @pytest.mark.futures
   • order_type: 0 = Market | order_side: 0 = Long, 1 = Short
   • Negative tests catch both HTTP errors and non-200 API response codes
